@@ -38,11 +38,9 @@ module.exports = function(io){
 		client.on('join', function(connectedUser) {			
 			if (connectedUser.chatroom) {				
 				query.checkExistsChatroom(connectedUser.chatroom, function(error, chatroom) {										
-					if (error) {
-						console.log('Finding ' + connectedUser.chatroom + ' failed');
-						client.emit('Chatroom lookup error');						
-					}
-
+					
+					if (error) console.log('Finding ' + connectedUser.chatroom + ' failed');
+					
 					if (chatroom) {						
 						query.createUser(connectedUser.name, chatroom, function(error, user) {
 							createUserCallback(error, user, chatroom, client, activeUsers);	
@@ -62,9 +60,9 @@ module.exports = function(io){
 				user: data.user
 			});
 		});
-		
+
 		client.on('disconnect', function() {
-			io.sockets.emit('alert', activeUsers[client.id].username + ' has left chat');
+			client.broadcast.to(client.room).emit('alert', activeUsers[client.id].username + ' has left the room');
 			client.leave(client.room);
 			delete activeUsers[client.id];
 		});

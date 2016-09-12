@@ -5,7 +5,9 @@ var ChatroomSchema = new mongoose.Schema({
 		type: String,
 		unique: true,
 		dropdups: true
-	}
+	}},
+	{
+		timestamps: true	
 });
 
 module.exports = mongoose.model('Chatroom', ChatroomSchema);

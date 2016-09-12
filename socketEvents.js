@@ -50,6 +50,7 @@ module.exports = function(io){
 							createChatroomCallback(error, chatroom, connectedUser, client, rooms, activeUsers);
 						});
 					}
+					
 				});
 			}
 		});

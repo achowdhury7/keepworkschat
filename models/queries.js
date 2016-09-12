@@ -1,6 +1,6 @@
-var path 	 = require('path');
+var path 	   = require('path');
 
-var User 	 = require( path.resolve( __dirname, './Users' ) );
+var User 	 	 = require( path.resolve( __dirname, './Users' ) );
 var Chatroom = require( path.resolve( __dirname, './Chatrooms' ) );
 
 module.exports.createUser = function(username, chatroom, callback) {
@@ -31,16 +31,9 @@ module.exports.checkExistsChatroom = function(name, callback) {
 		.findOne({ name: name })
 		.lean()
 		.exec(function(err, chatroom) {
-			if(err) return callback(err, null);
-			console.log('no error');
+			if(err) return callback(err, null);			
 			callback(null, chatroom);
 		});
 };
 
-module.exports.populateRoom = function(user, callback) {
-	user.populate('chatroom', function(err, result) {
-		if (err) return callback(err, null);
-		callback(null, result);
-	});
-};
 

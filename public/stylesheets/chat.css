@@ -16,3 +16,11 @@
 .center-text {
 	text-align: center;
 }
+
+.alert-box {
+	margin-bottom: 2%;
+}
+
+.list-item {
+	list-style-type: none;
+}

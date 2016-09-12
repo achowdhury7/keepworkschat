@@ -2,7 +2,10 @@ var mongoose = require('mongoose');
 
 var UserSchema = new mongoose.Schema({
 	username : String,
-	chatroom: [{type:mongoose.Schema.Types.ObjectId, ref:'Chatroom'}]
+	chatroom: [{ 
+		type: mongoose.Schema.Types.ObjectId, 
+		ref: 'Chatroom' 
+	}]
 },
 {
 	timestamps: true

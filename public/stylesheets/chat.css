@@ -1,0 +1,18 @@
+.page-container {
+	padding: 3%;
+}
+
+.message-box {
+	bottom: 20px;
+	margin: 2% 0;
+	position: fixed;
+	width: 90%;	
+}
+
+.message-input {
+	width: 90%;
+}	
+
+.center-text {
+	text-align: center;
+}

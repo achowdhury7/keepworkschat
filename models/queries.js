@@ -1,12 +1,12 @@
 var path 	 = require('path');
 
-var User 	 = require( path.resolve( __dirname, "./Users" ) );
-var Chatroom = require( path.resolve( __dirname, "./Chatrooms" ) );
+var User 	 = require( path.resolve( __dirname, './Users' ) );
+var Chatroom = require( path.resolve( __dirname, './Chatrooms' ) );
 
 module.exports.createUser = function(username, chatroom, callback) {
 	var newUser = new User({
-		username : username,
-		chatroom : chatroom
+		username: username,
+		chatroom: chatroom
 	});
 
 	newUser.save(function(err, user) {
@@ -17,7 +17,7 @@ module.exports.createUser = function(username, chatroom, callback) {
 
 module.exports.createChatroom = function(name, callback) {
 	var newChatroom = new Chatroom({
-		name : name
+		name: name
 	});
 
 	newChatroom.save(function(err, chatroom) {
@@ -28,11 +28,19 @@ module.exports.createChatroom = function(name, callback) {
 
 module.exports.checkExistsChatroom = function(name, callback) {
 	Chatroom
-		.findOne({name:name})
-		.exec(function (err, chatroom) {
-			if (err) return callback(err, null);
+		.findOne({ name: name })
+		.lean()
+		.exec(function(err, chatroom) {
+			if(err) return callback(err, null);
+			console.log('no error');
 			callback(null, chatroom);
 		});
 };
 
+module.exports.populateRoom = function(user, callback) {
+	user.populate('chatroom', function(err, result) {
+		if (err) return callback(err, null);
+		callback(null, result);
+	});
+};
 

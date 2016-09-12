@@ -1,4 +1,4 @@
 module.exports = {
-	'database' : 'mongodb://localhost/keepworks_chat',
-	'port'	   : '3002'
+	'database': 'mongodb://localhost/keepworks_chat',
+	'port': '3002'
 }

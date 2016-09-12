@@ -1,13 +1,32 @@
 <div class="page-container">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-4"></div>
-				<div class="col-md-8">
-					<div class="container">
-						<div class="row"></div>
-						<div class="row"></div>
-					</div>
-				</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="center-block alert-box center-text" ng-show="alert">{{alert}}</div>				
 			</div>
 		</div>
+	</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<ul class="list-group">
+					<li class="list-item" ng-repeat="message in messageList">
+						{{message.user}} - {{message.message}}
+					</li>
+				</ul>
+			</div>				
+		</div>
+	</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<form ng-submit="sendMessage()">
+					<div class="message-box">
+						<input type="text" id="message" class="form-control pull-left message-input" placeholder="Type your message here!" ng-model="message" required></input>
+						<button type="submit" class="btn btn-default">Submit</button>
+					</div>	
+				</form>
+			</div>
+		</div>
+	</div>
 	</div>

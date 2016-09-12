@@ -20,10 +20,13 @@ module.exports.createChatroom = function(name, cb) {
 	newChatroom.save(cb);
 };
 
-module.exports.checkExistsChatroom = function(name, cb) {
+module.exports.checkExistsChatroom = function(name, callback) {
 	Chatroom
 		.find({name:name})
-		.exec(cb);
+		.exec(function (err, chatroom) {
+			if (err) return callback(err, null);
+			callback(null, chatroom);
+		});
 };
 
 

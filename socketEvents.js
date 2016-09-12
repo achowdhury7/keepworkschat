@@ -2,8 +2,7 @@ var query  = require('./models/queries');
 
 function createUserCallback(error, newUser) {
 	if (error) {
-		console.log('Creating new user failed.');
-		next(error);
+		console.log('Creating new user failed.');		
 	}
 	if (newUser) {
 		console.log(newUser + ' created');
@@ -24,21 +23,19 @@ module.exports = function(io){
 			if (connectedUser.chatroom && connectedUser.chatroom!= '') {
 				query.checkExistsChatroom(connectedUser.chatroom, function(error, chatroom) {
 					if (error) {
-						console.log('Finding ' + connectedUser.chatroom + ' failed');
-						next(error);
+						console.log('Finding ' + connectedUser.chatroom + ' failed');						
 					}
-					if (chatroom) {
+					if (chatroom.name) {
 						console.log(chatroom.name + ' found');
-						query.createUser(connectedUser.name, connectedUser.chatroom, createUserCallback);
+						query.createUser(connectedUser.name, chatroom, createUserCallback);
 					} else {
 						query.createChatroom(connectedUser.chatroom, function(error, chatroom) {
 							if (error) {
-								console.log('Creating ' + connectedUser.chatroom + ' failed');
-								next(error);
+								console.log('Creating ' + connectedUser.chatroom + ' failed');								
 							}
-							if (chatroom) {
+							if (chatroom.name) {
 								console.log(chatroom.name + ' created');
-								query.createUser(connectedUser.name, connectedUser.chatroom, createUserCallback);
+								query.createUser(connectedUser.name, chatroom, createUserCallback);
 							}
 						});
 					}

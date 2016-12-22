@@ -1,19 +1,18 @@
 var query  = require('./models/queries');
+var path 	   = require('path');
+var User 	 	 = require( path.resolve( __dirname, './models/Users' ) );
+var Chatroom = require( path.resolve( __dirname, './models/Chatrooms' ) );
 
-function createUserCallback(error, newUser, chatroom, client, activeUsers) {
-	
-	if (error) console.log('Creating new user failed.');	
 
-	if (newUser.username) {
-		activeUsers[client.id] = newUser;		
-		client.room = chatroom.name;
-		client.join(client.room);
-		client.username = newUser.username;		
+function configureClient(user, client) {
+	if (user.username) {		
+		client.room = user.chatroom;
+		client.join(client.room);										
 		client.emit('userJoin', {
-			user: client.username,
-			room: client.room
+			user: user.username,
+			room: user.room
 		});
-		client.broadcast.to(client.room).emit('alert', client.username + ' has joined us!');		
+		client.broadcast.to(client.room).emit('alert', user.username + ' has joined us!');		
 	} 
 };
 
@@ -36,22 +35,45 @@ module.exports = function(io){
 	
 	io.on('connection', function(client) {		
 		client.on('join', function(connectedUser) {			
+			console.log(connectedUser + ' connected');
 			if (connectedUser.chatroom) {				
-				query.checkExistsChatroom(connectedUser.chatroom, function(error, chatroom) {										
-					
-					if (error) console.log('Finding ' + connectedUser.chatroom + ' failed');
-					
-					if (chatroom) {						
-						query.createUser(connectedUser.name, chatroom, function(error, user) {
-							createUserCallback(error, user, chatroom, client, activeUsers);	
+				Chatroom
+					.findIfExists(connectedUser.chatroom)
+						.then(function(chatroom) {		
+							console.log(chatroom + 'found');								
+							if (chatroom) {						
+								User
+									.create({ 
+										username: connectedUser.name, 
+										chatroom: chatroom
+									})
+										.then(configureClient(user,client))
+										.catch(function() {
+											console.log('Creating new user failed.');										
+										});								
+								activeUsers[client.id] = connectedUser.name;
+							}					
+						})
+						.catch(function() {
+							console.log('Finding ' + connectedUser.chatroom + ' failed');
+							Chatroom
+								.create({name : connectedUser.chatroom})
+									.then(function(chatroom) {
+										User
+											.create({ 
+												username: connectedUser.name, 
+												chatroom: chatroom
+											})
+												.then(configureClient(user,client))
+												.catch(function() {
+													console.log('Creating new user failed.');										
+												});								
+										activeUsers[client.id] = connectedUser.name;	
+									})
+									.catch(function() {
+										console.log('Creating chatroom failed');
+									});
 						});
-					} else {						
-						query.createChatroom(connectedUser.chatroom, function(error, chatroom) {
-							createChatroomCallback(error, chatroom, connectedUser, client, rooms, activeUsers);
-						});
-					}
-					
-				});
 			}
 		});
 

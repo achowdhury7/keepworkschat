@@ -11,8 +11,9 @@ angular
 		
 		$scope.$on('socket:userJoin', function(event, user) {
 			if (user) {
-				$scope.user = user.user;
-				$scope.room = user.room;				
+				console.log(user);
+				$scope.user = user.username;
+				$scope.room = user.chatroom;				
 			}
 		});
 		

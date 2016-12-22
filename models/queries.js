@@ -27,14 +27,11 @@ module.exports= {
 		});
 	},
 
-	checkExistsChatroom: function(name, callback) {
-		Chatroom
-			.findOne({ name: name })
-			.lean()
-			.exec(function(err, chatroom) {
-				if(err) return callback(err, null);			
-				callback(null, chatroom);
-			});
+	checkExistsChatroom: function(name) {
+		return Chatroom
+						.findOne({ name: name })
+						.lean()
+						.exec();
 	}
 };
 

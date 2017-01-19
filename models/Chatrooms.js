@@ -11,10 +11,11 @@ var ChatroomSchema = new mongoose.Schema({
 });
 
 ChatroomSchema.statics.findIfExists = function(name) {
-		return mongoose.model('Chatroom')
-			.findOne({ name: name })
-				.lean()
-				.exec();
+	return mongoose.model('Chatroom')
+		.findOne({ name: name })
+			.lean()	 
+				.exec()
+					.catch(error => Promise.reject(new Error('Find op failed because: \n' + error)));						
 	};
 
 module.exports = mongoose.model('Chatroom', ChatroomSchema);

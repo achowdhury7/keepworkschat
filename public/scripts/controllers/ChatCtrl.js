@@ -12,8 +12,8 @@ angular
 		$scope.$on('socket:userJoin', function(event, user) {
 			if (user) {
 				console.log(user);
-				$scope.user = user.username;
-				$scope.room = user.chatroom;				
+				$scope.user = user.user;
+				$scope.room = user.room;				
 			}
 		});
 		
@@ -25,6 +25,7 @@ angular
 
 		$scope.$on('socket:messageUpdate', function(event, data) {
 			if (data.user === $scope.user) {
+				console.log(data);
 				data.user = 'Me';
 			}	
 			$scope.messageList.push(data);			
@@ -37,6 +38,7 @@ angular
 					room: $scope.room,
 					message: $scope.message
 				});				
+				console.log($scope.user);
 				$scope.message = '';
 			}
 		}; 

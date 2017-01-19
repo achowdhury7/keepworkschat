@@ -4,80 +4,76 @@ var User 	 	 = require( path.resolve( __dirname, './models/Users' ) );
 var Chatroom = require( path.resolve( __dirname, './models/Chatrooms' ) );
 
 
-function configureClient(user, client) {
-	if (user.username) {		
-		client.room = user.chatroom;
-		client.join(client.room);										
-		client.emit('userJoin', {
-			user: user.username,
-			room: user.room
-		});
-		client.broadcast.to(client.room).emit('alert', user.username + ' has joined us!');		
-	} 
+function configure(client, clientArray) {
+	return user => {
+		console.log(user.username);
+		console.log(user.chatroom);
+		if (user.username) {		
+			client.room = user.chatroom;
+			client.join(client.room);										
+			client.emit('userJoin', {
+				user: user.username,
+				room: user.chatroom
+			});
+			client.broadcast.to(client.room).emit('alert', user.username + ' has joined us!');	
+			clientArray[client.id] = user.username;				
+		}	
+	}	 
+}
+
+function createUser(username) {	
+	return (chatroom) => {
+		console.log(chatroom + ' found');
+		return User
+			.create({ 
+				username: username, 
+				chatroom: chatroom
+			});			
+	};						
+} 
+
+function createChatroom(chatroom) {
+	return Chatroom
+		.create({
+			name : chatroom
+		})
+			.then(chatroom => console.log(chatroom));
+}
+
+function reportError(error) {
+	console.log('failure callback:\n' + error);
 };
 
-function createChatroomCallback(error, chatroom, connectedUser, client, rooms, activeUsers) {
-	
-	if (error) console.log('Creating ' + connectedUser.chatroom + ' failed');								
-	
-	if (chatroom.name) {		
-		rooms.push(chatroom.name);
-		query.createUser(connectedUser.name, chatroom, function(err, user) {
-			createUserCallback(err, user, chatroom, client, activeUsers);
-		});
-	}
-};
-
-module.exports = function(io){
+module.exports = function(io) {
 	
 	var activeUsers = {};	
 	var rooms = [];
 	
 	io.on('connection', function(client) {		
 		client.on('join', function(connectedUser) {			
-			console.log(connectedUser + ' connected');
-			if (connectedUser.chatroom) {				
+			//console.log(connectedUser.name + ' connected');
+			if (connectedUser.chatroom) {											
+				var createUserInRoom = createUser(connectedUser.name);
+				var configureUser = configure(client, activeUsers);
 				Chatroom
 					.findIfExists(connectedUser.chatroom)
-						.then(function(chatroom) {		
-							console.log(chatroom + 'found');								
-							if (chatroom) {						
-								User
-									.create({ 
-										username: connectedUser.name, 
-										chatroom: chatroom
-									})
-										.then(configureClient(user,client))
-										.catch(function() {
-											console.log('Creating new user failed.');										
-										});								
-								activeUsers[client.id] = connectedUser.name;
-							}					
+						.then(chatroom => {
+							if(chatroom) {
+								createUserInRoom(chatroom)
+									.then(configureUser);
+							} else {
+								createChatroom(connectedUser.chatroom)
+									.then(createUserInRoom)
+										.then(configureUser);
+							}
 						})
-						.catch(function() {
-							console.log('Finding ' + connectedUser.chatroom + ' failed');
-							Chatroom
-								.create({name : connectedUser.chatroom})
-									.then(function(chatroom) {
-										User
-											.create({ 
-												username: connectedUser.name, 
-												chatroom: chatroom
-											})
-												.then(configureClient(user,client))
-												.catch(function() {
-													console.log('Creating new user failed.');										
-												});								
-										activeUsers[client.id] = connectedUser.name;	
-									})
-									.catch(function() {
-										console.log('Creating chatroom failed');
-									});
-						});
+						.catch(reportError);					
+						
 			}
 		});
 
 		client.on('message', function(data) {			
+			console.log(data);
 			io.sockets.in(data.room).emit('messageUpdate', {
 				message: data.message,
 				user: data.user
